@@ -1,6 +1,5 @@
 import 'package:provider/provider.dart';
 import 'package:weather_app/component/homePageTabBarItems.dart';
-// import 'package:weather_app/component/homePageTabBarItems.dart';
 import 'package:weather_app/export.dart';
 
 class HomePage extends StatelessWidget {
@@ -66,7 +65,10 @@ class HomePage extends StatelessWidget {
                 },
               ),
             ),
-            Padding(padding: EdgeInsets.only(top: screenHeight / 1.15), child: HomePageTabBarItems()),
+            Padding(
+              padding: EdgeInsets.only(top: screenHeight / 1.15),
+              child: HomePageTabbarDesign(),
+            ),
           ],
         ),
       ),
