@@ -69,17 +69,46 @@ _showBottomSheet(BuildContext context) {
                     ),
                   ],
                 ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      ListView.builder(
-                        controller: scrollController,
-                        itemCount: 20,
-                        itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                            title: Text('Item $index'),
-                          );
-                        },
+          );
+        },
+      );
+    },
+  );
+}
+
+ListView _tabBarWeatherDataWeeks() {
+  return ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: 20,
+    itemBuilder: (BuildContext context, int index) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 56,
+            height: 84,
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.all(
+                Radius.circular(36),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text('data'),
+                Text('data'),
+                Text('data'),
+              ],
+            ),
+          ),
+        ],
+      );
+    },
                       ),
                       ListView.builder(
                         scrollDirection: Axis.horizontal,
