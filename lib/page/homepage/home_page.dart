@@ -1,15 +1,17 @@
 import 'package:provider/provider.dart';
-import 'package:weather_app/component/homePageTabBarItems.dart';
+
 import 'package:weather_app/export.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
     TextTheme darkTextTheme = WeatherAppTheme.darkTextTheme;
     return ChangeNotifierProvider(
-      create: (_) => HomeViewModel(),
+      create: (_) => WeatherDataFromAPI(),
       child: Scaffold(
         body: Stack(
           children: [
@@ -20,7 +22,7 @@ class HomePage extends StatelessWidget {
               height: screenHeight,
             ),
             Center(
-              child: Consumer<HomeViewModel>(
+              child: Consumer<WeatherDataFromAPI>(
                 builder: (context, model, child) {
                   return model.weatherData == null
                       ? const CircularProgressIndicator()
@@ -33,11 +35,15 @@ class HomePage extends StatelessWidget {
                               style: darkTextTheme.bodyLarge,
                             ),
                             Text(
+                              "${model.weatherData.forecast?.forecastday?[2].date}",
+                              style: darkTextTheme.bodyLarge,
+                            ),
+                            Text(
                               "${model.weatherData.current?.temp_c}°",
                               style: darkTextTheme.bodyLarge,
                             ),
                             Text(
-                              "${model.weatherData.current?.condition.text}",
+                              "${model.weatherData.current?.condition?.text}",
                               style: darkTextTheme.bodyMedium?.copyWith(
                                 color: Colors.white60,
                               ),
@@ -67,7 +73,7 @@ class HomePage extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.only(top: screenHeight / 1.15),
-              child: HomePageTabbarDesign(),
+              child: const HomePageTabbarDesign(),
             ),
           ],
         ),

@@ -1,12 +1,12 @@
 export 'package:flutter/material.dart';
 export 'package:weather_app/page/homepage/home_page.dart';
 export 'dart:convert';
-export 'package:weather_app/api/weather_service.dart';
 export 'package:geolocator/geolocator.dart';
 export 'package:flutter/foundation.dart';
 export 'package:geolocator/geolocator.dart';
-export 'package:weather_app/page/homepage/home_view_model.dart';
 export 'package:weather_app/model/weather_model.dart';
 export 'package:weather_app/theme/images.dart';
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:weather_app/theme/theme.dart';
+export 'package:weather_app/component/home_tabbar_items.dart';
+export 'package:weather_app/data/weather_data.dart';
