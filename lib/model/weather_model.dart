@@ -11,7 +11,7 @@ class WeatherData {
   WeatherData({this.location, this.current, this.forecast});
 
   factory WeatherData.fromJson(Map<String, dynamic> json) => _$WeatherDataFromJson(json);
-  Map<String, dynamic> toJson() => _$WeatherDataToJson(this);
+  Map<String?, dynamic> toJson() => _$WeatherDataToJson(this);
 }
 
 @JsonSerializable()
@@ -65,6 +65,7 @@ class Current {
   final double? uv;
   final double? gust_mph;
   final double? gust_kph;
+  final AirQuality? air_quality;
 
   Current({
     this.last_updated_epoch,
@@ -90,6 +91,7 @@ class Current {
     this.uv,
     this.gust_mph,
     this.gust_kph,
+    this.air_quality,
   });
 
   factory Current.fromJson(Map<String, dynamic> json) => _$CurrentFromJson(json);
@@ -166,6 +168,7 @@ class Day {
   final int? daily_chance_of_snow;
   final Condition? condition;
   final double? uv;
+  final AirQuality? air_quality;
 
   Day({
     this.maxtemp_c,
@@ -188,6 +191,7 @@ class Day {
     this.daily_chance_of_snow,
     this.condition,
     this.uv,
+    this.air_quality,
   });
 
   factory Day.fromJson(Map<String, dynamic> json) => _$DayFromJson(json);
@@ -255,6 +259,7 @@ class Hour {
   final double? gust_mph;
   final double? gust_kph;
   final double? uv;
+  final AirQuality? air_quality;
 
   Hour({
     this.time_epoch,
@@ -290,10 +295,39 @@ class Hour {
     this.gust_mph,
     this.gust_kph,
     this.uv,
+    this.air_quality,
   });
 
   factory Hour.fromJson(Map<String, dynamic> json) => _$HourFromJson(json);
   Map<String?, dynamic> toJson() => _$HourToJson(this);
+}
+
+@JsonSerializable()
+class AirQuality {
+  final double? co;
+  final double? no2;
+  final double? o3;
+  final double? so2;
+  final double? pm2_5;
+  final double? pm10;
+  @JsonKey(name: 'us-epa-index')
+  final int? usEpaIndex;
+  @JsonKey(name: 'gb-defra-index')
+  final int? gbDefraIndex;
+
+  AirQuality({
+    this.co,
+    this.no2,
+    this.o3,
+    this.so2,
+    this.pm2_5,
+    this.pm10,
+    this.usEpaIndex,
+    this.gbDefraIndex,
+  });
+
+  factory AirQuality.fromJson(Map<String, dynamic> json) => _$AirQualityFromJson(json);
+  Map<String?, dynamic> toJson() => _$AirQualityToJson(this);
 }
 
 

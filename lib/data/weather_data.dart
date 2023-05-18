@@ -23,7 +23,7 @@ class WeatherDataFromAPI with ChangeNotifier {
       _loading = true;
       notifyListeners();
 
-      var url = '$base_url?key=$apiKey&q=Samsun&aqi=no&days=7&aqi=no&alerts=no';
+      var url = '$base_url?key=$apiKey&q=China&days=7&aqi=yes&alerts=no';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
