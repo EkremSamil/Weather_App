@@ -8,6 +8,7 @@ class CustomContainer extends StatelessWidget {
 
   final Widget? child;
   EdgeInsets? margin;
+  EdgeInsets? padding;
 
   CustomContainer({
     Key? key,
@@ -16,6 +17,7 @@ class CustomContainer extends StatelessWidget {
     this.width,
     required this.child,
     this.margin,
+    this.padding,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class CustomContainer extends StatelessWidget {
     return Container(
       height: height,
       width: width,
+      padding: padding,
       decoration: boxDecoration(),
       margin: margin ?? const EdgeInsets.all(14),
       child: child,

@@ -25,48 +25,7 @@ class HomePage extends StatelessWidget {
                 // ignore: unnecessary_null_comparison
                 return model.weatherData == null
                     ? const CircularProgressIndicator()
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "${model.weatherData.location?.name}",
-                            style: darkTextTheme.bodyLarge,
-                          ),
-                          Text(
-                            "${model.weatherData.forecast?.forecastday?[2].date}",
-                            style: darkTextTheme.bodyLarge,
-                          ),
-                          Text(
-                            "${model.weatherData.current?.temp_c}°",
-                            style: darkTextTheme.bodyLarge,
-                          ),
-                          Text(
-                            "${model.weatherData.current?.condition?.text}",
-                            style: darkTextTheme.bodyMedium?.copyWith(
-                              color: Colors.white60,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Nem : ${model.weatherData.current?.humidity}%",
-                                style: darkTextTheme.bodyMedium?.copyWith(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SvgPicture.asset(
-                            house,
-                            fit: BoxFit.cover,
-                            width: screenWidth / 2.5,
-                            height: screenHeight / 2.5,
-                          ),
-                        ],
-                      );
+                    : _centerDesign(model, darkTextTheme, screenWidth, screenHeight);
               },
             ),
           ),
@@ -76,6 +35,47 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Column _centerDesign(WeatherDataFromAPI model, TextTheme darkTextTheme, double screenWidth, double screenHeight) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "${model.weatherData.location?.name}",
+          style: darkTextTheme.bodyLarge,
+        ),
+        Text(
+          "${model.weatherData.current?.temp_c}°",
+          style: darkTextTheme.bodyLarge,
+        ),
+        Text(
+          "${model.weatherData.current?.condition?.text}",
+          style: darkTextTheme.bodyMedium?.copyWith(
+            color: Colors.white60,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "Nem : ${model.weatherData.current?.humidity}%",
+              style: darkTextTheme.bodyMedium?.copyWith(
+                color: Colors.white60,
+              ),
+            ),
+          ],
+        ),
+        SvgPicture.asset(
+          house,
+          fit: BoxFit.cover,
+          width: screenWidth / 2.5,
+          height: screenHeight / 2.5,
+        ),
+      ],
     );
   }
 }
