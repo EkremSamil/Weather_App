@@ -1,6 +1,11 @@
-import 'package:provider/provider.dart';
-import 'package:weather_app/export.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'package:weather_app/component/buttons/home_page_add_icon_button.dart';
+import 'package:weather_app/component/buttons/home_page_gps_icon_button.dart';
+import 'package:weather_app/component/buttons/home_page_list_icon_button.dart';
+import 'package:weather_app/component/tabbar_custom_container.dart';
+import 'package:weather_app/export.dart';
 
 class HomePageTabbarDesign extends StatelessWidget {
   const HomePageTabbarDesign({super.key});
@@ -17,33 +22,20 @@ class HomePageTabbarDesign extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: () {},
-            color: Colors.white,
-            iconSize: 26,
-            icon: Icon(Icons.gps_fixed),
-          ),
-          IconButton(
-            onPressed: () {
-              _showBottomSheet(context);
-            },
-            iconSize: 48,
-            color: Colors.white,
-            icon: Icon(Icons.add),
-          ),
-          IconButton(
-            onPressed: () {},
-            color: Colors.white,
-            iconSize: 26,
-            icon: Icon(Icons.list),
-          ),
+          const GPSFixedIconButton(),
+          AddIconButton(onPressed: () {
+            _showBottomSheet(context);
+          }),
+          const ListIconButton(),
         ],
       ),
     );
   }
 }
 
-_showBottomSheet(BuildContext context) {
+void _showBottomSheet(BuildContext context) {
+  WeatherDataFromAPI weatherDataFromAPI = Provider.of<WeatherDataFromAPI>(context, listen: false);
+
   showModalBottomSheet(
     backgroundColor: Color(0xDC1C137C),
     context: context,
@@ -54,18 +46,20 @@ _showBottomSheet(BuildContext context) {
         maxChildSize: 1.0,
         expand: false,
         builder: (BuildContext context, ScrollController scrollController) {
-          return Consumer<WeatherDataFromAPI>(
-            builder: (context, value, child) {
-              Current? currentWeatherData = value.weatherData.current;
-              Location? locationWeatherData = value.weatherData.location;
-              ForecastDay? forecastWeatherData = value.weatherData.forecast?.forecastday?[0];
-              int? usEpaIndex = currentWeatherData?.air_quality?.usEpaIndex;
+          WeatherData weatherData = weatherDataFromAPI.weatherData;
+          Current? currentWeatherData = weatherData.current;
+          ForecastDay? forecastWeatherData = weatherData.forecast?.forecastday?[0];
+          int? usEpaIndex = currentWeatherData?.air_quality?.usEpaIndex;
 
-              return value.loading
-                  ? Text('HATA')
-                  : tabController(scrollController, value, forecastWeatherData, currentWeatherData, usEpaIndex);
-            },
-          );
+          return weatherDataFromAPI.loading
+              ? CircularProgressIndicator()
+              : tabController(
+                  scrollController,
+                  weatherDataFromAPI,
+                  forecastWeatherData,
+                  currentWeatherData,
+                  usEpaIndex,
+                );
         },
       );
     },
@@ -88,14 +82,64 @@ DefaultTabController tabController(ScrollController scrollController, WeatherDat
           child: TabBarView(
             children: [
               _hourlyForecastItems(value, forecastWeatherData, currentWeatherData),
-              _tabBarWeatherDataWeeks(),
+              WeeklyForecastData(
+                value: value,
+                forecastWeatherData: forecastWeatherData,
+                currentWeatherData: currentWeatherData,
+              ),
             ],
           ),
         ),
-        airQuality(usEpaIndex),
+        airQualityCardWidget(usEpaIndex, currentWeatherData, forecastWeatherData),
       ],
     ),
   );
+}
+
+class WeeklyForecastData extends StatelessWidget {
+  WeatherDataFromAPI? value;
+  ForecastDay? forecastWeatherData;
+  Current? currentWeatherData;
+
+  WeeklyForecastData({
+    Key? key,
+    this.value,
+    this.forecastWeatherData,
+    this.currentWeatherData,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: value?.weatherData.forecast?.forecastday?.length,
+      itemBuilder: (BuildContext context, int index) {
+        var forecastHours = forecastWeatherData?.hour?[index];
+        var time = DateTime.parse(forecastHours!.time.toString());
+        var timeString = DateFormat('hh a').format(time);
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CustomContainer(
+              height: 160,
+              margin: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text('${timeString}', style: WeatherAppTheme.darkTextTheme.bodySmall),
+                  Text(' ${forecastHours.temp_c}°C', style: WeatherAppTheme.darkTextTheme.bodySmall),
+                  Text('${forecastHours.humidity}% Hmdty', style: WeatherAppTheme.darkTextTheme.bodySmall),
+                  Image.network('https:${forecastHours.condition?.icon}')
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 ListView _hourlyForecastItems(WeatherDataFromAPI value, ForecastDay? forecastWeatherData, Current? currentWeatherData) {
@@ -106,7 +150,6 @@ ListView _hourlyForecastItems(WeatherDataFromAPI value, ForecastDay? forecastWea
       var forecastHours = forecastWeatherData?.hour?[index];
       var time = DateTime.parse(forecastHours!.time.toString());
       var timeString = DateFormat('hh a').format(time);
-      double? usEpaIndex = currentWeatherData?.air_quality?.usEpaIndex?.toDouble();
 
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -119,24 +162,10 @@ ListView _hourlyForecastItems(WeatherDataFromAPI value, ForecastDay? forecastWea
   );
 }
 
-Container _hourlyForecastItemsDesign(String timeString, Hour forecastHours) {
-  return Container(
-    width: 80,
+CustomContainer _hourlyForecastItemsDesign(String timeString, Hour forecastHours) {
+  return CustomContainer(
     height: 160,
-    padding: const EdgeInsets.only(top: 12),
     margin: const EdgeInsets.all(8),
-    decoration: const BoxDecoration(
-      color: Colors.blue,
-      borderRadius: BorderRadius.all(Radius.circular(36)),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.white,
-          spreadRadius: 2,
-          blurRadius: 5,
-          offset: Offset(0, 3),
-        ),
-      ],
-    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -150,80 +179,27 @@ Container _hourlyForecastItemsDesign(String timeString, Hour forecastHours) {
   );
 }
 
-Expanded airQuality(int? usEpaIndex) {
+Expanded airQualityCardWidget(int? usEpaIndex, Current? currentWeatherData, ForecastDay? forecastWeatherData) {
   return Expanded(
     child: ListView(
+      padding: const EdgeInsets.all(24),
       shrinkWrap: true,
       children: [
-        Container(
-          height: 175,
-          decoration: const BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.all(Radius.circular(36)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.white,
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(3, 3),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('AIR QUALITY', style: WeatherAppTheme.darkTextTheme.bodyMedium),
-                _buildAirQualityText(usEpaIndex!),
-                SizedBox(height: 15),
-                Slider(
-                  thumbColor: Colors.red,
-                  inactiveColor: Colors.white,
-                  activeColor: Colors.black,
-                  value: usEpaIndex.toDouble(),
-                  min: 0.0,
-                  max: 6.0,
-                  divisions: 6,
-                  label: usEpaIndex.toString(),
-                  onChanged: (double value) {
-                    usEpaIndex = value.toInt();
-                  },
-                ),
-                const SizedBox(height: 15),
-              ],
-            ),
-          ),
+        _airQualityCurrentData(usEpaIndex),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _uvIndexCurrentAirData(currentWeatherData),
+            _sunsetCurrentAirData(forecastWeatherData),
+          ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              flex: 40,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.red,
-                ),
-                margin: EdgeInsets.all(18),
-                width: 56,
-                height: 125,
-              ),
-            ),
-            Expanded(
-              flex: 40,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.red,
-                ),
-                margin: EdgeInsets.all(18),
-                width: 56,
-                height: 125,
-              ),
-            ),
+            _visibilityCurrentAirData(currentWeatherData),
+            _feelsLikeCurrentAirData(currentWeatherData),
           ],
         ),
       ],
@@ -231,7 +207,168 @@ Expanded airQuality(int? usEpaIndex) {
   );
 }
 
-Widget _buildAirQualityText(int usEpaIndex) {
+CustomContainer _airQualityCurrentData(int? usEpaIndex) {
+  return CustomContainer(
+    height: 175,
+    margin: EdgeInsets.zero,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('AIR QUALITY', style: WeatherAppTheme.darkTextTheme.bodyMedium),
+          _buildairQualityCardWidgetText(usEpaIndex!),
+          SizedBox(height: 15),
+          Slider(
+            thumbColor: Colors.red,
+            inactiveColor: Colors.white,
+            activeColor: Colors.black,
+            value: usEpaIndex.toDouble(),
+            min: 0.0,
+            max: 6.0,
+            divisions: 6,
+            label: usEpaIndex.toString(),
+            onChanged: (double value) {
+              usEpaIndex = value.toInt();
+            },
+          ),
+          const SizedBox(height: 15),
+        ],
+      ),
+    ),
+  );
+}
+
+Expanded _uvIndexCurrentAirData(Current? currentWeatherData) {
+  return Expanded(
+    child: CustomContainer(
+      height: 150,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('UV Index', style: WeatherAppTheme.darkTextTheme.bodySmall),
+            SizedBox(height: 5),
+            Text('${currentWeatherData?.uv}', style: WeatherAppTheme.darkTextTheme.bodyMedium),
+            SizedBox(height: 5),
+            _buildUvIndexText(currentWeatherData!.uv!.toInt()),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Expanded _sunsetCurrentAirData(ForecastDay? forecastWeatherData) {
+  return Expanded(
+    child: CustomContainer(
+      height: 150,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.sunny),
+            Text('${forecastWeatherData?.astro?.sunrise}', style: WeatherAppTheme.darkTextTheme.bodySmall),
+            SizedBox(height: 15),
+            Icon(Icons.shield_moon),
+            Text('${forecastWeatherData?.astro?.sunset}', style: WeatherAppTheme.darkTextTheme.bodySmall),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Expanded _visibilityCurrentAirData(Current? currentWeatherData) {
+  return Expanded(
+    child: CustomContainer(
+      height: 150,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.visibility),
+                SizedBox(width: 10),
+                Text('Visibility', style: WeatherAppTheme.darkTextTheme.bodySmall),
+              ],
+            ),
+            SizedBox(height: 5),
+            Text('${currentWeatherData?.vis_km}', style: WeatherAppTheme.darkTextTheme.bodyMedium),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Expanded _feelsLikeCurrentAirData(Current? currentWeatherData) {
+  return Expanded(
+    child: CustomContainer(
+      height: 150,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(Icons.thermostat),
+                Text('FEELS LIKE', style: WeatherAppTheme.darkTextTheme.bodySmall),
+              ],
+            ),
+            Text('${currentWeatherData?.feelslike_c}°', style: WeatherAppTheme.darkTextTheme.bodyMedium),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildUvIndexText(int currentWeatheruv) {
+  String description;
+  Color color;
+
+  if (currentWeatheruv <= 2) {
+    description = 'Good';
+    color = Colors.green;
+  } else if (currentWeatheruv > 2 && currentWeatheruv <= 5) {
+    description = 'Moderate';
+    color = Colors.yellowAccent;
+  } else if (currentWeatheruv > 5 && currentWeatheruv < 8) {
+    description = 'High';
+    color = Colors.red;
+  } else if (currentWeatheruv > 7 && currentWeatheruv < 11) {
+    description = 'Very High';
+    color = Colors.brown;
+  } else if (currentWeatheruv >= 11) {
+    description = 'Extreme';
+    color = Colors.black;
+  } else {
+    description = 'Unknown';
+    color = Colors.grey;
+  }
+
+  return Text(
+    description,
+    style: WeatherAppTheme.darkTextTheme.bodySmall?.copyWith(color: color),
+  );
+}
+
+Widget _buildairQualityCardWidgetText(int usEpaIndex) {
   String description = '';
   Color? color;
 
@@ -277,17 +414,9 @@ ListView _tabBarWeatherDataWeeks() {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 56,
+          CustomContainer(
             height: 125,
-            padding: const EdgeInsets.all(8),
             margin: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.all(
-                Radius.circular(36),
-              ),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

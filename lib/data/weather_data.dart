@@ -8,9 +8,11 @@ class WeatherDataFromAPI with ChangeNotifier {
   WeatherData _weatherData = WeatherData();
   String _error = '';
   bool _loading = false;
+  DateTime? _lastUpdated;
 
   WeatherDataFromAPI() {
     _weatherData = WeatherData();
+    _lastUpdated = null;
     _getLocationData();
   }
 
@@ -23,14 +25,23 @@ class WeatherDataFromAPI with ChangeNotifier {
       _loading = true;
       notifyListeners();
 
-      var url = '$base_url?key=$apiKey&q=China&days=7&aqi=yes&alerts=no';
+      // ignore: unnecessary_null_comparison
+      if (_weatherData != null && _lastUpdated != null) {
+        if (_lastUpdated!.isAfter(DateTime.now().subtract(Duration(minutes: 30)))) {
+          _loading = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      var url = '$base_url?key=$apiKey&q=$latLong&days=7&aqi=yes&alerts=no';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         _weatherData = WeatherData.fromJson(jsonData);
-
         _error = '';
+        _lastUpdated = DateTime.now(); // Güncelleme zamanını kaydet
       } else {
         _error = 'Failed to load data';
       }
@@ -45,6 +56,7 @@ class WeatherDataFromAPI with ChangeNotifier {
   Future<void> _getLocationData() async {
     try {
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+      // ignore: unnecessary_null_comparison
       if (position.latitude != null && position.longitude != null) {
         var latLong = "${position.latitude},${position.longitude}";
         await _getWeatherData(latLong);
