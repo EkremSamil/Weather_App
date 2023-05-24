@@ -44,15 +44,15 @@ class HomePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          "${model.weatherData.location?.name}",
+          "${model.weatherData?.location?.name}",
           style: darkTextTheme.bodyLarge,
         ),
         Text(
-          "${model.weatherData.current?.temp_c}°",
+          "${model.weatherData?.current?.temp_c}°",
           style: darkTextTheme.bodyLarge,
         ),
         Text(
-          "${model.weatherData.current?.condition?.text}",
+          "${model.weatherData?.current?.condition?.text}",
           style: darkTextTheme.bodyMedium?.copyWith(
             color: Colors.white60,
           ),
@@ -62,7 +62,7 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Nem : ${model.weatherData.current?.humidity}%",
+              "Nem : ${model.weatherData?.current?.humidity}%",
               style: darkTextTheme.bodyMedium?.copyWith(
                 color: Colors.white60,
               ),

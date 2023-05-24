@@ -51,9 +51,9 @@ void _showBottomSheet(BuildContext context) {
         maxChildSize: 1.0,
         expand: false,
         builder: (BuildContext context, ScrollController scrollController) {
-          WeatherData weatherData = weatherDataFromAPI.weatherData;
-          Current? currentWeatherData = weatherData.current;
-          ForecastDay? forecastWeatherData = weatherData.forecast?.forecastday?[0];
+          WeatherData? weatherData = weatherDataFromAPI.weatherData;
+          Current? currentWeatherData = weatherData?.current;
+          ForecastDay? forecastWeatherData = weatherData?.forecast?.forecastday?[0];
           int? usEpaIndex = currentWeatherData?.air_quality?.usEpaIndex;
 
           return weatherDataFromAPI.loading

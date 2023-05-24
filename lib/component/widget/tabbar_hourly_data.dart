@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 import '../../export.dart';
 
+// ignore: must_be_immutable
 class HourlyForecastData extends StatelessWidget {
   WeatherDataFromAPI? value;
   ForecastDay? forecastWeatherData;

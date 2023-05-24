@@ -5,6 +5,7 @@ class WeatherSearchData extends ChangeNotifier {
   WeatherData _weatherData = WeatherData();
   String _error = '';
   bool _loading = false;
+  // ignore: unused_field
   DateTime? _lastUpdated;
   List<String> _searchHistory = [];
   List<WeatherData> _searchResults = [];

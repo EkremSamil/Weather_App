@@ -5,7 +5,7 @@ String base_url = "http://api.weatherapi.com/v1/forecast.json";
 String apiKey = "d404cf68c53f4b40a05135211231205";
 
 class WeatherDataFromAPI with ChangeNotifier {
-  WeatherData _weatherData = WeatherData();
+  WeatherData? _weatherData = WeatherData();
   String _error = '';
   bool _loading = false;
   DateTime? _lastUpdated;
@@ -16,7 +16,7 @@ class WeatherDataFromAPI with ChangeNotifier {
     _getLocationData();
   }
 
-  WeatherData get weatherData => _weatherData;
+  WeatherData? get weatherData => _weatherData;
   String get error => _error;
   bool get loading => _loading;
 

@@ -1,5 +1,6 @@
 import '../../export.dart';
 
+// ignore: must_be_immutable
 class AirQualityData extends StatelessWidget {
   int? usEpaIndex;
   Current? currentWeatherData;

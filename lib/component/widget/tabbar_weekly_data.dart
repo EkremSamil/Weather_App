@@ -18,9 +18,9 @@ class WeeklyForecastData extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: value?.weatherData.forecast?.forecastday?.length,
+      itemCount: value?.weatherData?.forecast?.forecastday?.length,
       itemBuilder: (BuildContext context, int index) {
-        var forecastDay = value?.weatherData.forecast?.forecastday?[index];
+        var forecastDay = value?.weatherData?.forecast?.forecastday?[index];
         var date = forecastDay?.date;
 
         var dayOfWeek = DateFormat('EEEE').format(DateTime.parse(date.toString()));
